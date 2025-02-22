@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .company-logo {
+            width: 100px;
+        }
+        .company-details, .invoice-details {
+            font-size: 14px;
+            text-align: left;
+        }
+        .info-section {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #333;
+            color: white;
+        }
+        .total-section {
+            text-align: right;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <div class="header">
+            <img src="logo.png" alt="Company Logo" class="company-logo">
+            <div class="invoice-details">
+                <h2>INVOICE</h2>
+                <p><strong>Invoice Date:</strong> {{invoiceDate}}</p>
+                <p><strong>Appointment ID:</strong> {{appointmentId}}</p>
+            </div>
+        </div>
+        <hr>
+        <div class="info-section">
+            <h3>Company Details</h3>
+            <p><strong>JustFix Pvt Ltd</strong></p>
+        </div>
+        <div class="info-section">
+            <h3>User Details</h3>
+            <p><strong>Name:</strong> {{user.name}}</p>
+            <p><strong>Phone:</strong> {{user.phone}}</p>
+            <p><strong>Email:</strong> {{user.email}}</p>
+        </div>
+        <div class="info-section">
+            <h3>Garage Details</h3>
+            <p><strong>Garage:</strong> {{garage.name}}</p>
+            <p><strong>Location:</strong> {{garage.location}}</p>
+        </div>
+        <h3>Services</h3>
+        <table>
+            <tr>
+                <th>Sr No</th>
+                <th>Service Name</th>
+                <th>Charge</th>
+                <th>Status</th>
+                <th>Transaction ID</th>
+            </tr>
+            {{serviceRows}}
+        </table>
+        <div class="total-section">
+            <p><strong>Total Paid: ₹{{totalPaid}}</strong></p>
+        </div>
+        <p class="footer">All rights reserved by JustFix Pvt Ltd</p>
+    </div>
+</body>
+</html>
