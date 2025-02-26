@@ -28,7 +28,14 @@ const sendWithdrawRequest = {
   }),
 };
 
+const viewWalletTransactionHistory = {
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24).required(),
+  }),
+};
+
 module.exports = {
   salesCounting,
   sendWithdrawRequest,
+  viewWalletTransactionHistory,
 };

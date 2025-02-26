@@ -46,4 +46,10 @@ module.exports = {
     CAPTURE: "capture",
     REFUNDED: "refunded",
   },
+  REVIEW_STATUS: {
+    REQUESTED: "requested",
+    SUBMITTED: "submitted",
+    REJECTED: "rejected",
+    CANCELLED: "cancelled",
+  },
 };

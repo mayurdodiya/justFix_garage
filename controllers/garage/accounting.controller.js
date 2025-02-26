@@ -1,4 +1,4 @@
-const { PaymentsModel, WithdrawRequestsModel, GarageModel } = require("../../models/index.js");
+const { PaymentsModel, WithdrawRequestsModel, GarageModel, AppointmentsModel } = require("../../models/index.js");
 const apiResponse = require("../../utils/api.response.js");
 const { WITHDRAW_REQUESTS_STATUS } = require("../../utils/constant.js");
 const MESSAGE = require("../../utils/message.js");
@@ -39,19 +39,9 @@ module.exports = {
   // view wallet transaction history
   viewWalletTransactionHistory: async (req, res) => {
     try {
-      const garageId = "67b2b7ec960200225d82fcf5"
-      const populate = {
-        path: "appointment_service_id",
-        populate: {
-          path: "garage_service_id",
-          populate: {
-            path: "garage_id",
-            match: { _id: garageId }, // 🔍 Searching in the `garage` table
-            select: "_id garage_name",
-          },
-        },
-      };
-      const data = await PaymentsModel.find().populate(populate);
+      const garageId = req.params.id;
+      const populate = [{ path: "appointment_service_id" }, { path: "withdraw_request_id" }];
+      const data = await PaymentsModel.find({ garage_id: garageId }).populate(populate);
       return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Wallet transaction history"), data });
     } catch (error) {
       console.log("🚀 ~ viewWalletTransactionHistory: ~ error:", error);

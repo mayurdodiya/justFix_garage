@@ -5,6 +5,6 @@ const validate = require("../../middlewares/validate");
 const { accountingValidation } = require("../../validations");
 
 router.post("/accounting/withdraw-req/:id", validate(accountingValidation.sendWithdrawRequest), controller.sendWithdrawRequest);
-router.get("/accounting/wallet-history/get/:id", /* validate(accountingValidation.getWithdrawRequest), */ controller.viewWalletTransactionHistory);
+router.get("/accounting/wallet-history/get/:id", validate(accountingValidation.viewWalletTransactionHistory), controller.viewWalletTransactionHistory);
 
 module.exports = router;

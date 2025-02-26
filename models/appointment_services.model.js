@@ -51,8 +51,6 @@ appointmentServicesSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = mongoose.model("appointment_services", appointmentServicesSchema);
-
 appointmentServicesSchema.virtual("payments", {
   ref: "payments", // Reference to the appointment_services collection
   localField: "_id", // Field in the appointments collection
@@ -61,3 +59,5 @@ appointmentServicesSchema.virtual("payments", {
 
 appointmentServicesSchema.set("toObject", { virtuals: true });
 appointmentServicesSchema.set("toJSON", { virtuals: true });
+
+module.exports = mongoose.model("appointment_services", appointmentServicesSchema);

@@ -62,6 +62,47 @@ const pagination = {
   }),
 };
 
+const editGarageProfile = {
+  body: Joi.object().keys({
+    garage_name: Joi.string().trim().min(3).max(100).optional(),
+    location: Joi.object({
+      coordinates: Joi.array().items(Joi.number()).length(2).optional(),
+    }).optional(),
+    images: Joi.array().items(Joi.string().uri()).optional(),
+    permissions: Joi.object({
+      notificaton: Joi.boolean().optional(),
+      location: Joi.boolean().optional(),
+    }).optional(),
+    address: Joi.object({
+      locality: Joi.string().trim().optional(),
+      pincode: Joi.string().trim().optional(),
+      city: Joi.string().trim().optional(),
+      state: Joi.string().trim().optional(),
+      country: Joi.string().trim().optional(),
+    }).optional(),
+    opening_time: Joi.string().allow("").optional(),
+    closing_time: Joi.string().allow("").optional(),
+    certificate: Joi.array().items(Joi.string().uri()).optional(),
+    specialities: Joi.array().items(Joi.string().trim()).optional(),
+    bank_details: Joi.object({
+      account_holder_name: Joi.string().trim().optional(),
+      branch_name: Joi.string().trim().optional(),
+      account_number: Joi.string().trim().optional(),
+      ifsc_code: Joi.string().trim().optional(),
+    }).optional(),
+    full_name: Joi.string().trim().min(3).max(100).optional(),
+    country_code: Joi.string()
+      .trim()
+      .pattern(/^\+\d{1,3}$/)
+      .optional(),
+    phone_no: Joi.string()
+      .trim()
+      .pattern(/^\d{10}$/)
+      .optional(),
+    profile_image: Joi.string().uri().optional(),
+  }),
+};
+
 module.exports = {
   garageList,
   pagination,
@@ -70,14 +111,5 @@ module.exports = {
   getAppointmentList,
   getAllWithdrawRequests,
   getAllServicesOfGarage,
-
-
-
-
-
-
-
-
-
-
+  editGarageProfile,
 };

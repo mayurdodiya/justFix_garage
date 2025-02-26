@@ -8,3 +8,4 @@ module.exports.garageServicesValidation = require("./garage_services_management.
 module.exports.appointmentValidation = require("./appointment.validation"); // appointment validation.
 module.exports.dashboardValidation = require("./dashboard.validation"); // dashboard validation.
 module.exports.accountingValidation = require("./accounting.validation"); // accounting validation.
+module.exports.ratingsValidation = require("./ratings.validation"); // ratings validation.

@@ -3,13 +3,21 @@ const { PAYMENT_STATUS } = require("../utils/constant");
 
 const paymentsSchema = new mongoose.Schema(
   {
+    user_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "users",
+    },
+    garage_id: {
+      type: mongoose.Types.ObjectId,
+      ref: "garages",
+    },
     appointment_service_id: {
       type: mongoose.Types.ObjectId,
       ref: "appointment_services",
-      required: true,
     },
     withdraw_request_id: {
       type: mongoose.Types.ObjectId,
+      ref: "withdraw_requests",
       default: null,
     },
     transaction_id: {
@@ -37,11 +45,18 @@ const paymentsSchema = new mongoose.Schema(
 
 // Auto-calculate admin_fees before saving
 paymentsSchema.pre("save", function (next) {
-  if (this.amount) {
-    this.admin_fees = Math.round(this.amount * process.env.ADMIN_FEES * 100) / 100; // 10% of amount
-  }
-  if (this.amount && this.admin_fees) {
-    this.net_withdrawable_amount = Number((this.amount - this.admin_fees).toFixed(2));
+  if (this.withdraw_request_id == null) {
+    if (this.amount) {
+      this.admin_fees = Math.round(this.amount * process.env.ADMIN_FEES * 100) / 100; // 10% of amount
+    }
+    if (this.amount && this.admin_fees) {
+      this.net_withdrawable_amount = Number((this.amount - this.admin_fees).toFixed(2));
+    }
+  }else{
+    if (this.amount) {
+      this.admin_fees = 0
+      this.net_withdrawable_amount = this.amount;
+    }
   }
   next();
 });

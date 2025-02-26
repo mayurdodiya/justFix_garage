@@ -41,9 +41,6 @@ const appointmentsSchema = new mongoose.Schema(
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
 
-module.exports = mongoose.model("appointments", appointmentsSchema);
-
-
 appointmentsSchema.virtual("appointment_services", {
   ref: "appointment_services", // Reference to the appointment_services collection
   localField: "_id", // Field in the appointments collection
@@ -52,3 +49,5 @@ appointmentsSchema.virtual("appointment_services", {
 
 appointmentsSchema.set("toObject", { virtuals: true });
 appointmentsSchema.set("toJSON", { virtuals: true });
+
+module.exports = mongoose.model("appointments", appointmentsSchema);
