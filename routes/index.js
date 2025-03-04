@@ -15,7 +15,13 @@ router.use("/user", authMiddleware({ usersAllowed: [ROLE.USER] }), require("./us
 router.use("/admin", authMiddleware({ usersAllowed: [ROLE.ADMIN] }), require("./admin/garage.route"));
 router.use("/admin", authMiddleware({ usersAllowed: [ROLE.ADMIN] }), require("./admin/customer.route"));
 router.use("/admin", authMiddleware({ usersAllowed: [ROLE.ADMIN] }), require("./admin/services_management.route"));
-router.use("/admin", authMiddleware({ usersAllowed: [ROLE.ADMIN] }), require("./admin/appointment.route"));
+router.use("/admin", /* authMiddleware({ usersAllowed: [ROLE.ADMIN] }), */ require("./admin/appointment.route"));
 router.use("/admin", authMiddleware({ usersAllowed: [ROLE.ADMIN] }), require("./admin/dashboard.route"));
+router.use("/admin", authMiddleware({ usersAllowed: [ROLE.ADMIN] }), require("./admin/accounting.route"));
+
+// garage routes
+router.use("/garage", /* authMiddleware({ usersAllowed: [ROLE.GARAGE] }), */ require("./garage/accounting.route"));
+router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("./garage/appointment.route"));
+router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("./garage/services_management.route"));
 
 module.exports = router;

@@ -19,6 +19,16 @@ const appointmentServicesSchema = new mongoose.Schema(
       default: USER_APPROVAL.PENDING,
       required: true,
     },
+    service_amount: {
+      type: Number,
+      required: true,
+    },
+    discount: {
+      type: Number,
+    },
+    net_amount: {
+      type: Number,
+    },
     message: {
       type: String,
     },
@@ -32,8 +42,16 @@ const appointmentServicesSchema = new mongoose.Schema(
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
 
-module.exports = mongoose.model("appointment_services", appointmentServicesSchema);
+// Auto-calculate net amount before saving
+appointmentServicesSchema.pre("save", function (next) {
+  if (this.service_amount) {
+    const net_amount = this.service_amount - (this.service_amount * this.discount) / 100;
+    this.net_amount = Math.round(net_amount * 100) / 100;
+  }
+  next();
+});
 
+module.exports = mongoose.model("appointment_services", appointmentServicesSchema);
 
 appointmentServicesSchema.virtual("payments", {
   ref: "payments", // Reference to the appointment_services collection

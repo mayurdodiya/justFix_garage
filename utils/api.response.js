@@ -51,6 +51,14 @@ module.exports = {
       payload: data,
     });
   },
+
+  DUPLICATE_VALUE: ({ res, message, data = {} } = {}) => {
+    res.status(HttpStatusCode.Conflict).json({
+      success: false,
+      message: message || "Duplicate value.",
+      payload: data,
+    });
+  },
 };
 
 // module.exports = {

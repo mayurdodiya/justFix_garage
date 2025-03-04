@@ -1,5 +1,6 @@
 module.exports = {
   NO_DATA: (str) => `${str} doesn't exist!`,
+  REQUIRED: (str) => `${str} is required!`,
   UPDATE_DATA: (str) => `${str} has been update successfully!`,
   DELETE_DATA: (str) => `${str} has been delete successfully!`,
   GET_DATA: (str) => `${str} has been get successfully!`,
@@ -15,11 +16,14 @@ module.exports = {
   ROLE_NOT_ALLOWED: `You are not allowed to login!`,
   SOMETHING_WENT_TO_WRONG: "Something went to wrong, please try again later!",
   SENT: (str) => `${str} has been sent to your registered email!`,
+  SENT_REQUEST: (str) => `${str} has been sent!`,
   INVALID: (str) => `Invalid ${str} !`,
   EXPIRED: (str) => `Your ${str} has expired. Try again with a new ${str}!`,
   NO_PROVIDE: (str) => `No ${str} provided!`,
   UNAUTHORIZED: "Unauthorized!",
   ADMIN_CREATION_RESTRICTED: "Admin account creation is not permitted.",
+  INSUFFICIENT_BALANCE: "Insufficient balance to withdraw!",
+  REQUEST_ALREADY_EXISTS: "You cannot submit a new request until your previous request is completed!",
 };
 
 // module.exports = { message };

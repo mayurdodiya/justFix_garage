@@ -11,3 +11,4 @@ module.exports.RatingsModel = require("./ratings.model"); // ratings model.
 module.exports.WithdrawRequestsModel = require("./withdraw_requests.model"); // withdraw_requests model.
 module.exports.AppointmentServicesModel = require("./appointment_services.model"); // appointment_services model.
 module.exports.PaymentsModel = require("./payments.model"); // payments model.
+module.exports.AdminWalletModel = require("./admin_wallet.model"); // admin_wallet model.

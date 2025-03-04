@@ -12,7 +12,7 @@ module.exports = {
       const { vehicle_type, company, model_name, year, license_plate, chassis_number, fuel_type, images } = req.body;
       const vehicle = await VehiclesModel.findOne({ license_plate: license_plate, user_id: user._id });
       if (vehicle) {
-        return apiResponse.BAD_REQUEST({ res, message: MESSAGE.DATA_EXIST("This Vehicle") });
+        return apiResponse.DUPLICATE_VALUE({ res, message: MESSAGE.DATA_EXIST("This Vehicle") });
       }
 
       await VehiclesModel.create({ user_id: user._id, ...req.body });
@@ -37,7 +37,7 @@ module.exports = {
 
       const checkExistNumberPlate = await VehiclesModel.findOne({ license_plate: license_plate, $ne: { user_id: user._id } });
       if (checkExistNumberPlate) {
-        return apiResponse.BAD_REQUEST({ res, message: MESSAGE.DATA_EXIST("This number plate") });
+        return apiResponse.DUPLICATE_VALUE({ res, message: MESSAGE.DATA_EXIST("This number plate") });
       }
 
       await VehiclesModel.update({ _id: vehicaleId }, { ...req.body });

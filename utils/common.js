@@ -59,6 +59,7 @@ module.exports = {
 
     const skip = (+page - 1) * +size;
     const limit = size;
+    console.log(skip, limit, "-------hhhhhhhhh-------", page, size);
     return { skip, limit };
   },
 

@@ -8,7 +8,7 @@ router.get("/appointments/get/:id", validate(appointmentValidation.getAppointmen
 router.get("/appointments/services/get/:id", validate(appointmentValidation.getServicesListOfAppointment), controller.getAppointmentServiceList);
 
 
-router.get("/appointments/pdf", controller.pdfGenerate);
+router.get("/appointments/pdf", controller.downloadInvoicePdf);
 
 // http://localhost:3000/api/v1/admin/appointments/pdf
 

@@ -9,7 +9,7 @@ const garageServicesSchema = new mongoose.Schema(
     },
     garage_id: {
       type: mongoose.Types.ObjectId,
-      ref: "garage",
+      ref: "garages",
       required: true,
     },
     price: {

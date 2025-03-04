@@ -8,13 +8,14 @@ const withdrawRequestSchema = new mongoose.Schema(
       ref: "garage",
       required: true,
     },
-    withdrow_amount: {
+    withdraw_amount: {
       type: Number,
       required: true,
     },
     payment_id: {
       type: mongoose.Types.ObjectId,
       ref: "payments",
+      default: null,
     },
     status: {
       type: String,
