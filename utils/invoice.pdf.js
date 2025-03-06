@@ -19,7 +19,7 @@ async function generateInvoice(invoiceData) {
     html = html.replace('{{user.phone}}', invoiceData.user.phone);
     html = html.replace('{{user.email}}', invoiceData.user.email);
     html = html.replace('{{garage.name}}', invoiceData.garage.name);
-    html = html.replace('{{garage.location}}', invoiceData.garage.location);
+    html = html.replace('{{garage.locationCoordinates}}', invoiceData.garage.locationCoordinates);
     html = html.replace('{{appointmentId}}', invoiceData.appointmentId);
 
     // Generate service rows

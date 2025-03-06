@@ -26,4 +26,9 @@ router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("
 router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("./garage/services_management.route"));
 router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("./garage/profile.route"));
 
+
+// customer routes
+router.use("/customer", /* authMiddleware({ usersAllowed: [ROLE.USER] }), */ require("./customer/services_management.route"));
+
+
 module.exports = router;

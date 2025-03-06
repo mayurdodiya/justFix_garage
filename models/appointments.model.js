@@ -27,7 +27,7 @@ const appointmentsSchema = new mongoose.Schema(
       default: APPOINTMENT_STATUS.PENDING,
       trim: true,
     },
-    location: {
+    locationCoordinates: {
       type: {
         type: String,
         enum: ["Point"], // Only "Point" type is allowed
