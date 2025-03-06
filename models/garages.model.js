@@ -12,15 +12,15 @@ const garageSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    location: {
+    locationCoordinates: {
       type: {
         type: String,
         enum: ["Point"], // Only "Point" type is allowed
-        // required: true,
+        default: "Point",
       },
       coordinates: {
         type: [Number], // Array of [longitude, latitude]
-        // required: true,
+        default: [],
       },
     },
     images: {
@@ -82,5 +82,16 @@ const garageSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );
+
+garageSchema.virtual("garage_services", {
+  ref: "garage_services",
+  localField: "_id",
+  foreignField: "garage_id",
+  // justOne: true, // One-to-One relation
+});
+
+garageSchema.set("toJSON", { virtuals: true });
+garageSchema.set("toObject", { virtuals: true });
+
 
 module.exports = mongoose.model("garages", garageSchema);

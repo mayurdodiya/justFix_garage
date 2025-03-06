@@ -31,6 +31,11 @@ const editVehicle = {
     })
     .or("vehicle_type", "company", "model_name", "year", "license_plate", "chassis_number", "fuel_type", "images"),
 };
+const deleteVehicle = {
+  param: Joi.object().keys({
+    id: Joi.string().hex().length(24).required(),
+  }),
+};
 
 const getVehicle = {
   param: Joi.object().keys({
@@ -63,4 +68,5 @@ module.exports = {
   getVehicle,
   getAppointmentList,
   pagination,
+  deleteVehicle,
 };
