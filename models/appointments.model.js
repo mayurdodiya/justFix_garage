@@ -31,6 +31,7 @@ const appointmentsSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"], // Only "Point" type is allowed
+        default: "Point",
       },
       coordinates: {
         type: [Number], // Array of [longitude, latitude]
@@ -38,7 +39,7 @@ const appointmentsSchema = new mongoose.Schema(
     },
     is_delete: { type: Boolean, default: false }, // deleted : 1, note delete: 0
   },
-  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
+  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, versionKey: false }
 );
 
 appointmentsSchema.virtual("appointment_services", {

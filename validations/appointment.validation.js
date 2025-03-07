@@ -51,10 +51,41 @@ const addServiceForCustomerApproval = {
   }),
 };
 
+const getAllGarage = {
+  query: Joi.object().keys({
+    page: Joi.number().min(1).required(),
+    size: Joi.number().min(1).required(),
+    s: Joi.any().optional(),
+    longitude: Joi.number().min(-180).max(180).optional(),
+    latitude: Joi.number().min(-90).max(90).optional(),
+  }),
+};
+
+const getGarageById = {
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24).required(),
+  }),
+};
+
+const bookAppointment = {
+  body: Joi.object().keys({
+    vehicle_id: Joi.string().hex().length(24).required(),
+    garage_id: Joi.string().hex().length(24).required(),
+    longitude: Joi.number().min(-180).max(180).required(),
+    latitude: Joi.number().min(-90).max(90).required(),
+    garage_services: Joi.array().items(Joi.string().hex().length(24)).min(1).required(),
+    description: Joi.string().allow("").optional(),
+  }),
+};
+
+
 module.exports = {
   pagination,
   getAppointmentList,
   getServicesListOfAppointment,
   acceptRejectBooking,
   addServiceForCustomerApproval,
+  getAllGarage,
+  getGarageById,
+  bookAppointment,
 };

@@ -23,6 +23,18 @@ app.use(helmet());
 app.use(morgan.successHandler);
 app.use(morgan.errorHandler);
 
+app.get('/', (req,res)=> {
+  res.send("Hello world")
+})
+
+// will delete
+app.get('/success', (req,res)=> {
+  res.send("payment successfull!")
+})
+app.get('/cancel', (req,res)=> {
+  res.send("payment was cancelled!")
+})
+
 app.use("/api/v1", routes);
 
 app.use((req, res, next) => {

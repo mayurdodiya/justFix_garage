@@ -58,6 +58,10 @@ const vehicleSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    is_active: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true, versionKey: false }
 );

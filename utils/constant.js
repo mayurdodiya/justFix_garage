@@ -36,10 +36,11 @@ module.exports = {
     FALSE: false,
   },
   USER_APPROVAL: {
-    APPROVE: "approve",
+    APPROVED: "approved",
     PENDING: "pending",
     DECLINED: "declined",
     CANCELLED: "cancelled",
+    PAYMENT_COMPLETED: "payment_completed",
   },
   PAYMENT_STATUS: {
     PENDING: "pending",

@@ -1,5 +1,4 @@
 const express = require("express");
-const auth = require("../middlewares/auth");
 const { ROLE } = require("../utils/constant");
 const authMiddleware = require("../middlewares/auth");
 
@@ -28,7 +27,7 @@ router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("
 
 
 // customer routes
-router.use("/customer", /* authMiddleware({ usersAllowed: [ROLE.USER] }), */ require("./customer/services_management.route"));
+router.use("/customer", require("./customer/appointment.route"));
 
 
 module.exports = router;

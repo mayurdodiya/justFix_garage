@@ -4,7 +4,7 @@ const { USER_APPROVAL } = require("../utils/constant");
 const appointmentServicesSchema = new mongoose.Schema(
   {
     garage_service_id: {
-      type: mongoose.Types.ObjectId,
+      type: [mongoose.Types.ObjectId],
       ref: "garage_services",
       required: true,
     },
@@ -15,7 +15,7 @@ const appointmentServicesSchema = new mongoose.Schema(
     },
     user_approval: {
       type: String,
-      enum: [USER_APPROVAL.APPROVE, USER_APPROVAL.PENDING, USER_APPROVAL.DECLINED, USER_APPROVAL.CANCELLED],
+      enum: [USER_APPROVAL.APPROVED, USER_APPROVAL.PAYMENT_COMPLETED, USER_APPROVAL.PENDING, USER_APPROVAL.DECLINED, USER_APPROVAL.CANCELLED],
       default: USER_APPROVAL.PENDING,
       required: true,
     },
@@ -25,6 +25,7 @@ const appointmentServicesSchema = new mongoose.Schema(
     },
     discount: {
       type: Number,
+      default: 0,
     },
     net_amount: {
       type: Number,
@@ -39,7 +40,7 @@ const appointmentServicesSchema = new mongoose.Schema(
     },
     is_delete: { type: Boolean, default: false }, // deleted : 1, note delete: 0
   },
-  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
+  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, versionKey: false }
 );
 
 // Auto-calculate net amount before saving

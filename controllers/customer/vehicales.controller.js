@@ -1,4 +1,3 @@
-const { ROLE, OTP_TYPE } = require("../../utils/constant.js");
 const commonJs = require("../../utils/common.js");
 const apiResponse = require("../../utils/api.response.js");
 const MESSAGE = require("../../utils/message.js");
