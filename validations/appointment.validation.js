@@ -5,7 +5,7 @@ const pagination = {
   query: Joi.object().keys({
     page: Joi.number().required(),
     size: Joi.number().required(),
-    s: Joi.required(),
+    s: Joi.any().optional(),
   }),
 };
 const getAppointmentList = {
@@ -14,7 +14,7 @@ const getAppointmentList = {
     page: Joi.number().required(),
     size: Joi.number().required(),
     is_active: Joi.boolean().optional(),
-    s: Joi.required(),
+    s: Joi.any().optional(),
   }),
 };
 
@@ -78,6 +78,39 @@ const bookAppointment = {
   }),
 };
 
+const createPayment = {
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24).required().messages({
+      "any.required": "Appointment service ID is required",
+      "string.empty": "Appointment service ID cannot be empty",
+      "string.hex": "Appointment service ID must be a valid hex string",
+      "string.length": "Appointment service ID must be exactly 24 characters long",
+    }),
+  }),
+};
+
+const appointmentList = {
+  query: Joi.object().keys({
+    page: Joi.number().required(),
+    size: Joi.number().required(),
+    s: Joi.any().optional(),
+    vehicle_id: Joi.string().hex().length(24).optional().messages({
+      "string.hex": "Vehicle ID must be a valid hex string",
+      "string.length": "Vehicle ID must be exactly 24 characters long",
+    }),
+  }),
+};
+
+const getAppointmentById = {
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24).required().messages({
+      "any.required": "Appointment ID is required",
+      "string.empty": "Appointment ID cannot be empty",
+      "string.hex": "Appointment ID must be a valid hex string",
+      "string.length": "Appointment ID must be exactly 24 characters long",
+    }),
+  }),
+};
 
 module.exports = {
   pagination,
@@ -88,4 +121,7 @@ module.exports = {
   getAllGarage,
   getGarageById,
   bookAppointment,
+  createPayment,
+  appointmentList,
+  getAppointmentById,
 };

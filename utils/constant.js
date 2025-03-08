@@ -40,11 +40,11 @@ module.exports = {
     PENDING: "pending",
     DECLINED: "declined",
     CANCELLED: "cancelled",
-    PAYMENT_COMPLETED: "payment_completed",
   },
   PAYMENT_STATUS: {
     PENDING: "pending",
     CAPTURE: "capture",
+    FAILURE: "failure",
     REFUNDED: "refunded",
   },
   REVIEW_STATUS: {

@@ -36,7 +36,7 @@ const paymentsSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: [PAYMENT_STATUS.CAPTURE, PAYMENT_STATUS.PENDING, PAYMENT_STATUS.REFUNDED],
+      enum: [PAYMENT_STATUS.CAPTURE, PAYMENT_STATUS.PENDING, PAYMENT_STATUS.REFUNDED, PAYMENT_STATUS.FAILURE],
       required: true,
     },
   },

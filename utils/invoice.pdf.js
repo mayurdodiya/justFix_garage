@@ -19,6 +19,8 @@ async function generateInvoice(invoiceData) {
     html = html.replace('{{user.phone}}', invoiceData.user.phone);
     html = html.replace('{{user.email}}', invoiceData.user.email);
     html = html.replace('{{garage.name}}', invoiceData.garage.name);
+    html = html.replace('{{garage.phone}}', invoiceData.garage.phone);
+    html = html.replace('{{garage.email}}', invoiceData.garage.email);
     html = html.replace('{{garage.locationCoordinates}}', invoiceData.garage.locationCoordinates);
     html = html.replace('{{appointmentId}}', invoiceData.appointmentId);
 

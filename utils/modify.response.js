@@ -1,3 +1,5 @@
+const { PAYMENT_STATUS } = require("./constant");
+
 module.exports = {
   modifyGetAppointmentServiceList: async (response) => {
     const totalBill = response.appointment_services.data.reduce((sum, item) => {
@@ -47,6 +49,61 @@ module.exports = {
         total_page: response.appointment_services.total_page,
         currentPage: response.appointment_services.currentPage,
       },
+    };
+  },
+  modifyAppointmentForCustomerInvoice: async (response) => {
+    const servicesNameCombine = [];
+    response.appointment_services.map((item) => {
+      item.garage_services.map((item) => {
+        servicesNameCombine.push(`${item?.garage_service_id?.service_id?.service_name} at ₹${item?.garage_service_price}`);
+      });
+    });
+    const servicesNameString = servicesNameCombine.join(", "); // "xyz, abc"
+
+    const totalBill = response.appointment_services.reduce((sum, item) => {
+      // if (item?.payment?.payment_status == PAYMENT_STATUS.CAPTURE) { //
+        return sum + (item?.net_amount || 0);
+      // } //
+    }, 0);
+    return {
+      appointment_data: {
+        _id: response._id,
+        description: response.description,
+        status: response.status,
+        user_data: {
+          _id: response.user_id._id,
+          full_name: response.user_id.full_name,
+          email: response.user_id.email,
+          phone_no: response.user_id.phone_no,
+        },
+        garage_data: {
+          _id: response.garage_id._id,
+          garage_name: response.garage_id.garage_name,
+          email: response.garage_id.user_id.email,
+          phone_no: response.garage_id.user_id.phone_no,
+        },
+        vehicle_data: {
+          id: response.vehicle_id._id,
+          company: response.vehicle_id.company,
+          model_name: response.vehicle_id.model_name,
+          license_plate: response.vehicle_id.license_plate,
+          fuel_type: response.vehicle_id.fuel_type,
+        },
+      },
+      appointment_services: response.appointment_services.map((item) => {
+        return {
+          _id: item?._id,
+          appointment_id: item?.appointment_id,
+          user_approval: item?.user_approval,
+          service_amount: item?.service_amount,
+          discount: item?.discount,
+          net_amount: item?.net_amount,
+          payment_status: item?.payment?.payment_status,
+          transaction_id: item?.payment?.transaction_id,
+          service_name: servicesNameString,
+        };
+      }),
+      total_bill: totalBill,
     };
   },
 };

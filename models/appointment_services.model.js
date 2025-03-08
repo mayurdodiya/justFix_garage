@@ -1,13 +1,21 @@
 const mongoose = require("mongoose");
-const { USER_APPROVAL } = require("../utils/constant");
+const { USER_APPROVAL, PAYMENT_STATUS } = require("../utils/constant");
 
 const appointmentServicesSchema = new mongoose.Schema(
   {
-    garage_service_id: {
-      type: [mongoose.Types.ObjectId],
-      ref: "garage_services",
-      required: true,
-    },
+    garage_services: [
+      {
+        garage_service_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "garage_services",
+          required: true,
+        },
+        garage_service_price: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
     appointment_id: {
       type: mongoose.Types.ObjectId,
       ref: "appointments",
@@ -15,7 +23,7 @@ const appointmentServicesSchema = new mongoose.Schema(
     },
     user_approval: {
       type: String,
-      enum: [USER_APPROVAL.APPROVED, USER_APPROVAL.PAYMENT_COMPLETED, USER_APPROVAL.PENDING, USER_APPROVAL.DECLINED, USER_APPROVAL.CANCELLED],
+      enum: [USER_APPROVAL.APPROVED, USER_APPROVAL.PENDING, USER_APPROVAL.DECLINED, USER_APPROVAL.CANCELLED],
       default: USER_APPROVAL.PENDING,
       required: true,
     },
@@ -37,6 +45,21 @@ const appointmentServicesSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       default: null,
       trim: true,
+    },
+    payment: {
+      payment_status: {
+        type: String,
+        enum: [PAYMENT_STATUS.CAPTURE, PAYMENT_STATUS.PENDING, PAYMENT_STATUS.REFUNDED, PAYMENT_STATUS.FAILURE],
+        default: PAYMENT_STATUS.PENDING,
+      },
+      transaction_id: {
+        type: String,
+        default: null,
+      },
+      message: {
+        type: String,
+        default: null,
+      },
     },
     is_delete: { type: Boolean, default: false }, // deleted : 1, note delete: 0
   },

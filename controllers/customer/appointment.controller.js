@@ -1,9 +1,14 @@
-const { GarageModel, AppointmentsModel, AppointmentServicesModel, GarageServicesModel, VehiclesModel } = require("../../models/index.js");
+const { GarageModel, AppointmentsModel, AppointmentServicesModel, GarageServicesModel, VehiclesModel, PaymentsModel } = require("../../models/index.js");
 const apiResponse = require("../../utils/api.response.js");
 const MESSAGE = require("../../utils/message.js");
 const commonJs = require("../../utils/common.js");
-const { APPOINTMENT_STATUS, USER_APPROVAL } = require("../../utils/constant.js");
+const { APPOINTMENT_STATUS, USER_APPROVAL, PAYMENT_STATUS } = require("../../utils/constant.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { modifyAppointmentForCustomerInvoice } = require("../../utils/modify.response.js");
+const path = require("path");
+const invoicePdf = require("../../utils/invoice.pdf");
+const moment = require('moment')
+
 
 module.exports = {
   // Search mechanics by location, service type, or rating
@@ -85,6 +90,7 @@ module.exports = {
       if (!garageServices.length) {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.FOUND("No valid Garage services") });
       }
+
       const unmatchedServices = garage_services.filter((serviceId) => !garageServices.some((data) => data._id.toString() === serviceId.toString()));
       console.log(unmatchedServices, "------------------- unmatchedServices");
       if (unmatchedServices.length) {
@@ -103,9 +109,16 @@ module.exports = {
       let bookAppointment = await AppointmentsModel.create(queryObj);
       console.log(bookAppointment, "------------------- bookAppointment");
 
+      const garageServiceModify = garageServices.map((data) => {
+        return {
+          garage_service_id: data._id,
+          garage_service_price: data.price,
+        };
+      });
+
       const totalAmount = garageServices.reduce((sum, data) => sum + data.price, 0);
       const appointmentServicesObj = {
-        garage_service_id: garage_services,
+        garage_services: garageServiceModify,
         appointment_id: bookAppointment._id,
         user_approval: USER_APPROVAL.APPROVED,
         service_amount: totalAmount,
@@ -129,6 +142,8 @@ module.exports = {
   createPayment: async (req, res) => {
     try {
       const userId = req.user._id;
+      console.log(userId, "------------------- userId");
+
       const appointment_service_id = req.params.id;
 
       const isAppointmentServiceExist = await AppointmentServicesModel.findOne({ _id: appointment_service_id, is_delete: false });
@@ -139,6 +154,10 @@ module.exports = {
       const appointment = await AppointmentsModel.findOne({ _id: isAppointmentServiceExist.appointment_id, user_id: userId, is_delete: false });
       if (!appointment) {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_FOUND("This Appointment") });
+      }
+
+      if (appointment.status == APPOINTMENT_STATUS.PENDING) {
+        return apiResponse.BAD_REQUEST({ res, message: MESSAGE.GARAGE_PENDING_REQUEST });
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -161,6 +180,8 @@ module.exports = {
         ],
         payment_intent_data: {
           metadata: {
+            user_id: userId.toString(),
+            garage_id: appointment.garage_id.toString(),
             appointment_service_id: appointment_service_id,
             amount: isAppointmentServiceExist.net_amount,
           },
@@ -178,30 +199,253 @@ module.exports = {
     }
   },
 
+  // Webhook for Stripe ( call after create payment )
   webhook: async (req, res) => {
     try {
       const event = req.body;
+      const paymentObj = event?.data?.object;
       console.log(event, "-------------------------------------- event");
-      return res.sendStatus(400);
 
-      // switch (event.type) {
-      //   case "payment_intent.succeeded":
-      //     console.log("✅ Payment Successful:", event.data.object);
-      //     // TODO: Final confirmation of successful payment
-      //     break;
+      switch (event.type) {
+        case "payment_intent.succeeded":
+          console.log("✅ Payment Successful:", paymentObj);
 
-      //   case "payment_intent.payment_failed":
-      //     console.log("❌ Payment Failed:", event.data.object);
-      //     // TODO: Handle failed payments (retry, notify user, etc.)
-      //     break;
+          const metaData = paymentObj?.metadata;
+          const queryObj = {
+            user_id: metaData?.user_id,
+            garage_id: metaData?.garage_id,
+            appointment_service_id: metaData?.appointment_service_id,
+            transaction_id: paymentObj?.id,
+            amount: paymentObj?.amount / 100,
+            status: PAYMENT_STATUS.CAPTURE,
+          };
+          const payment = await PaymentsModel.create(queryObj);
+          await AppointmentServicesModel.findOneAndUpdate(
+            { _id: metaData?.appointment_service_id },
+            {
+              $set: { "payment.payment_status": PAYMENT_STATUS.CAPTURE, "payment.transaction_id": paymentObj?.id, "payment.message": "payment successfully capture" },
+            }
+          );
+          console.log(payment, "---------------------------- : Payment Successful! ✅");
+          break;
 
-      //   default:
-      //     console.log("Unhandled event:", event.type);
-      // }
-      // return apiResponse.OK({ res, message: MESSAGE.GENERATED("Payment link"), data: { url: session.url } });
+        case "payment_intent.payment_failed":
+          console.log("❌ Payment Failed:", paymentObj);
+
+          await AppointmentServicesModel.findOneAndUpdate(
+            { _id: metaData?.appointment_service_id },
+            {
+              $set: { "payment.payment_status": PAYMENT_STATUS.FAILURE, "payment.message": paymentObj?.last_payment_error?.message },
+            }
+          );
+          break;
+
+        default:
+          console.log("Unhandled event:", event.type);
+      }
+
+      return res.sendStatus(200);
     } catch (error) {
-      // console.log("🚀 ~ webhook: ~ error:", error);
+      console.log("🚀 ~ webhook: ~ error:", error);
+      return apiResponse.CATCH_ERROR({ res, message: MESSAGE.SOMETHING_WENT_TO_WRONG });
+    }
+  },
+
+  // vehicles wise appointment listing
+  appointmentList: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const { vehicle_id } = req.query;
+      const queryObj = {
+        user_id: userId,
+        is_delete: false,
+      };
+      if (vehicle_id) {
+        queryObj.vehicle_id = vehicle_id;
+      }
+
+      const populate = [
+        {
+          path: "garage_id",
+          select: "_id garage_name locationCoordinates",
+        },
+        {
+          path: "vehicle_id",
+          select: "_id model_name company license_plate fuel_type",
+        },
+        {
+          path: "appointment_services",
+          select: "_id payment garage_services message user_approval service_amount discount net_amount",
+          populate: [
+            {
+              path: "garage_services.garage_service_id",
+              select: "_id service_id",
+              populate: [
+                {
+                  path: "service_id",
+                  select: "_id service_name image_url",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      const appointments = await AppointmentsModel.find(queryObj).populate(populate);
+      return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Appointment data"), data: appointments });
+    } catch (error) {
+      console.log("🚀 ~ appointmentList: ~ error:", error);
+      return apiResponse.CATCH_ERROR({ res, message: MESSAGE.SOMETHING_WENT_TO_WRONG });
+    }
+  },
+
+  // view appointment by id
+  getAppointmentById: async (req, res) => {
+    try {
+      const appointmentId = req.params.id;
+      const queryObj = {
+        _id: appointmentId,
+        is_delete: false,
+      };
+
+      const populate = [
+        {
+          path: "garage_id",
+          select: "_id garage_name user_id locationCoordinates",
+          populate: [
+            {
+              path: "user_id",
+              select: "_id full_name email phone_no",
+            },
+          ],
+        },
+        {
+          path: "user_id",
+          select: "_id full_name email phone_no",
+        },
+        {
+          path: "vehicle_id",
+          select: "_id model_name company license_plate fuel_type",
+        },
+        {
+          path: "appointment_services",
+          select: "_id payment garage_services message user_approval service_amount discount net_amount",
+          populate: [
+            {
+              path: "garage_services.garage_service_id",
+              select: "_id service_id",
+              populate: [
+                {
+                  path: "service_id",
+                  select: "_id service_name image_url",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      const appointments = await AppointmentsModel.findOne(queryObj).populate(populate);
+      return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Appointment data"), data: appointments });
+    } catch (error) {
+      console.log("🚀 ~ appointmentList: ~ error:", error);
+      return apiResponse.CATCH_ERROR({ res, message: MESSAGE.SOMETHING_WENT_TO_WRONG });
+    }
+  },
+
+  // download invoice of appointment by id
+  downloadInvoicePdf: async (req, res) => {
+    try {
+      const appointmentId = req.params.id;
+      // ?appointmentId=67b32aa99e48e85268b5754a
+
+      if (appointmentId == null) {
+        return apiResponse.NOT_FOUND({ res, message: MESSAGE.REQUIRED("appointmentId") });
+      }
+
+      const populate = [
+        {
+          path: "garage_id",
+          select: "_id garage_name user_id locationCoordinates",
+          populate: [
+            {
+              path: "user_id",
+              select: "_id full_name email phone_no",
+            },
+          ],
+        },
+        {
+          path: "user_id",
+          select: "_id full_name email phone_no",
+        },
+        {
+          path: "vehicle_id",
+          select: "_id model_name company license_plate fuel_type",
+        },
+        {
+          path: "appointment_services",
+          select: "_id payment garage_services message user_approval service_amount discount net_amount",
+          populate: [
+            {
+              path: "garage_services.garage_service_id",
+              select: "_id service_id",
+              populate: [
+                {
+                  path: "service_id",
+                  select: "_id service_name image_url",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      const appointments = await AppointmentsModel.findOne({ _id: appointmentId }).populate(populate);
+
+      const responseModify = await modifyAppointmentForCustomerInvoice(appointments);
+
+      let serviceData = [];
+      responseModify.appointment_services.map((item) => {
+        const obj = {
+          name: item.service_name,
+          charge: item.net_amount,
+          status: item.user_approval,
+          transactionId: item.transaction_id,
+        };
+        serviceData.push(obj);
+      });
+
+      // Sample Data
+      const invoiceData = {
+        appointmentId: responseModify.appointment_data._id,
+        invoiceDate: moment(new Date()).format("D/MM/YYYY"),
+        user: {
+          name: responseModify.appointment_data.user_data.full_name,
+          phone: responseModify.appointment_data.user_data.phone_no,
+          email: responseModify.appointment_data.user_data.email,
+        },
+        garage: {
+          name: responseModify.appointment_data.garage_data.garage_name,
+          phone: responseModify.appointment_data.garage_data.phone_no,
+          email: responseModify.appointment_data.garage_data.email,
+        },
+        services: serviceData,
+        totalPaid: responseModify.appointment_services.total_bill,
+      };
+
+      // Generate Invoice
+      await invoicePdf.generateInvoice(invoiceData);
+      const pdfPath = await path.join(__dirname, "..", "..", "invoice.pdf");
+      return res.download(pdfPath, "invoice.pdf", (err) => {
+        if (err) {
+          console.error("Error sending file:", err);
+          res.status(500).send("Error downloading invoice");
+        }
+      });
+
+      // return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Pdf"), data: responseModify });
+    } catch (error) {
+      console.log("🚀 ~ pdfGenerate: ~ error:", error);
       return apiResponse.CATCH_ERROR({ res, message: MESSAGE.SOMETHING_WENT_TO_WRONG });
     }
   },
 };
+
+console.log(path.join(__dirname, "..", "..", "invoice.pdf"))

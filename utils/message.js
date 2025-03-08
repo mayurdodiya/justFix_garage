@@ -26,6 +26,7 @@ module.exports = {
   ADMIN_CREATION_RESTRICTED: "Admin account creation is not permitted.",
   INSUFFICIENT_BALANCE: "Insufficient balance to withdraw!",
   REQUEST_ALREADY_EXISTS: "You cannot submit a new request until your previous request is completed!",
+  GARAGE_PENDING_REQUEST: "Your appointment request is still pending with the garage and has not been accepted yet!",
 };
 
 // module.exports = { message };
