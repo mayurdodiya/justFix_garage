@@ -31,6 +31,8 @@ async function generateInvoice(invoiceData) {
             <tr>
                 <td>${index + 1}</td>
                 <td>${service.name}</td>
+                <td>${service.user_approval}</td>
+
                 <td>₹${service.charge}</td>
                 <td>${service.status}</td>
                 <td>${service.transactionId}</td>

@@ -7,8 +7,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { modifyAppointmentForCustomerInvoice } = require("../../utils/modify.response.js");
 const path = require("path");
 const invoicePdf = require("../../utils/invoice.pdf");
-const moment = require('moment')
-
+const moment = require("moment");
 
 module.exports = {
   // Search mechanics by location, service type, or rating
@@ -405,9 +404,12 @@ module.exports = {
       responseModify.appointment_services.map((item) => {
         const obj = {
           name: item.service_name,
+          user_approval: item.user_approval,
           charge: item.net_amount,
-          status: item.user_approval,
+          discount: item.discount,
+          status: item.payment_status,
           transactionId: item.transaction_id,
+          total:item.net_amount,
         };
         serviceData.push(obj);
       });
@@ -427,7 +429,7 @@ module.exports = {
           email: responseModify.appointment_data.garage_data.email,
         },
         services: serviceData,
-        totalPaid: responseModify.appointment_services.total_bill,
+        totalPaid: responseModify.appointment_services.total_bill ? responseModify.appointment_services.total_bill : "-",
       };
 
       // Generate Invoice
@@ -448,4 +450,4 @@ module.exports = {
   },
 };
 
-console.log(path.join(__dirname, "..", "..", "invoice.pdf"))
+console.log(path.join(__dirname, "..", "..", "invoice.pdf"));
