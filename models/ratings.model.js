@@ -24,8 +24,6 @@ const ratingsSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [REVIEW_STATUS.REQUESTED, REVIEW_STATUS.SUBMITTED, REVIEW_STATUS.REJECTED, REVIEW_STATUS.CANCELLED],
-      default: REVIEW_STATUS.REQUESTED,
-      required: true,
     },
     is_delete: { type: Boolean, default: false }, // deleted : 1, note delete: 0
   },

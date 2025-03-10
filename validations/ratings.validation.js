@@ -22,7 +22,16 @@ const listOfRatings = {
   }),
 };
 
+const addReviewToGarage = {
+  body: Joi.object().keys({
+    garage_id: Joi.string().hex().length(24).required(),
+    rate_score: Joi.number().required(),
+    user_feedback: Joi.string().required(),
+  }),
+}
+
 module.exports = {
   sendReviewRequest,
   listOfRatings,
+  addReviewToGarage,
 };

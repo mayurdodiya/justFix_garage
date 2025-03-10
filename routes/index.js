@@ -28,6 +28,8 @@ router.use("/garage", authMiddleware({ usersAllowed: [ROLE.GARAGE] }), require("
 
 // customer routes
 router.use("/customer", require("./customer/appointment.route"));
+router.use("/customer", authMiddleware({ usersAllowed: [ROLE.USER] }), require("./customer/ratings.route"));
+router.use("/customer", authMiddleware({ usersAllowed: [ROLE.USER] }), require("./customer/profile.route"));
 
 
 module.exports = router;

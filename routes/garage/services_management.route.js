@@ -6,9 +6,9 @@ const { garageServicesValidation } = require("../../validations");
 
 router.post("/service/add", validate(garageServicesValidation.addService), controller.addService);
 router.get("/service/get/:id", validate(garageServicesValidation.getServiceById), controller.getServiceById);
-router.get("/service/get", validate(garageServicesValidation.getAllService), controller.getAllService);
 router.delete("/service/delete/:id", validate(garageServicesValidation.getServiceById), controller.removeServiceById);
 router.put("/service/edit/:id", validate(garageServicesValidation.editService), controller.editServiceById);
 router.patch("/service/status/:id", validate(garageServicesValidation.changeServicesStatusById), controller.changeServicesStatusById)
+router.get("/service/getall/:id", validate(garageServicesValidation.getAllService), controller.getAllService);
 
 module.exports = router;

@@ -2,7 +2,7 @@ const { ROLE, OTP_TYPE } = require("../../utils/constant.js");
 const commonJs = require("../../utils/common.js");
 const apiResponse = require("../../utils/api.response.js");
 const MESSAGE = require("../../utils/message.js");
-const { GarageServicesModel, AppointmentsModel, ServicesModel } = require("../../models/index.js");
+const { GarageServicesModel } = require("../../models/index.js");
 
 module.exports = {
   // get all service

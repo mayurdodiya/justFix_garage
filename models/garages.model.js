@@ -57,7 +57,13 @@ const garageSchema = new mongoose.Schema(
     closing_time: { type: Date },
     certificate: { type: [String], default: [] },
     specialities: { type: [String], default: [] },
-    avg_ratings: { type: Number, default: 0, min: 0, max: 5 },
+    avg_ratings: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+      set: (v) => parseFloat(v.toFixed(2)), // Round to 2 decimal places before saving
+    },
     wallet_amount: { type: Number, default: 0, min: 0 },
     bank_details: {
       account_holder_name: {
@@ -80,7 +86,7 @@ const garageSchema = new mongoose.Schema(
     is_active: { type: Boolean, default: true },
     is_delete: { type: Boolean, default: false }, // deleted : 1, note delete: 0
   },
-  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
+  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, versionKey: false }
 );
 
 garageSchema.virtual("garage_services", {
@@ -92,6 +98,5 @@ garageSchema.virtual("garage_services", {
 
 garageSchema.set("toJSON", { virtuals: true });
 garageSchema.set("toObject", { virtuals: true });
-
 
 module.exports = mongoose.model("garages", garageSchema);

@@ -15,6 +15,6 @@ router.post("/appointment/payment/webhook", controller.webhook);    // https://0
 router.post("/appointment/payment/:id", authMiddleware({ usersAllowed: [ROLE.USER] }), validate(appointmentValidation.createPayment), controller.createPayment);
 router.get("/appointment/list", authMiddleware({ usersAllowed: [ROLE.USER] }), validate(appointmentValidation.appointmentList), controller.appointmentList);
 router.get("/appointment/get/:id", authMiddleware({ usersAllowed: [ROLE.USER] }), validate(appointmentValidation.getAppointmentById), controller.getAppointmentById);
-router.get("/appointment/invoice/:id", /* authMiddleware({ usersAllowed: [ROLE.USER] }), */ controller.downloadInvoicePdf);
+router.get("/appointment/invoice/:id", authMiddleware({ usersAllowed: [ROLE.USER] }), controller.downloadInvoicePdf);
 
 module.exports = router;

@@ -66,7 +66,7 @@ const userSchema = new mongoose.Schema(
     google_id: { type: String, default: null },
     is_delete: { type: Boolean, default: false }, // deleted : 1, note delete: 0
   },
-  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
+  { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, versionKey: false }
 );
 
 module.exports = mongoose.model("users", userSchema);

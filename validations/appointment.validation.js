@@ -56,8 +56,8 @@ const getAllGarage = {
     page: Joi.number().min(1).required(),
     size: Joi.number().min(1).required(),
     s: Joi.any().optional(),
-    longitude: Joi.number().min(-180).max(180).optional(),
-    latitude: Joi.number().min(-90).max(90).optional(),
+    longitude: Joi.number().min(-180).max(180).required(),
+    latitude: Joi.number().min(-90).max(90).required(),
   }),
 };
 

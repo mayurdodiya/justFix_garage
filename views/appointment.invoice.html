@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f8f8f8;
+      }
+
+      .invoice-box {
+        min-height: 92vh;
+        position: relative;
+        max-width: 900px;
+        margin: auto;
+        /* padding: 20px; */
+        border: 1px solid #eee;
+        background: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        text-align: center;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+
+      th {
+        background: #007bff;
+        color: white;
+      }
+
+      .total {
+        text-align: right;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-right: 10px;
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        margin-top: 20px;
+        color: gray;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="invoice-box">
+      <img src="{{logoPath}}" alt="JustFix Logo" style="max-width: 150px; display: block; margin: 0 auto 20px" />
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px"></div>
+
+      <h2>Invoice</h2>
+      <p><strong>Invoice Date:</strong> {{invoiceDate}}</p>
+      <p><strong>Company:</strong> JustFix Pvt Ltd</p>
+      <p><strong>Appointment Id:</strong> {{appointmentId}}</p>
+      <p><strong>Appointment Status:</strong> {{appointment_status}} from garage</p>
+      <hr />
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+        <div>
+          <h3>User Details</h3>
+          <p><strong>Name:</strong> {{user.name}}</p>
+          <p><strong>Phone:</strong> {{user.phone}}</p>
+          <p><strong>Email:</strong> {{user.email}}</p>
+          <hr />
+        </div>
+        <div>
+          <h3>Garage Details</h3>
+          <p><strong>Garage:</strong> {{garage.name}}</p>
+          <p><strong>Phone:</strong> {{garage.phone}}</p>
+          <p><strong>Email:</strong> {{garage.email}}</p>
+          <hr />
+        </div>
+      </div>
+
+      <h3>Vehicle Details</h3>
+      <p><strong>Vehicle:</strong> {{vehicle.model_name}}</p>
+      <p><strong>Plate:</strong> {{vehicle.license_plate}}</p>
+      <p><strong>Fuel:</strong> {{vehicle.fuel_type}}</p>
+      <hr />
+      <h3>Services</h3>
+      <table>
+        <tr>
+          <th>Sr No</th>
+          <th>Service Name</th>
+          <th>User Approval</th>
+          <th>Services Ammount</th>
+          <th>Discount</th>
+          <th>Payment Status</th>
+          <th>Transaction ID</th>
+          <th>Total</th>
+        </tr>
+        {{serviceRows}}
+        <tr class="total-row">
+          <td colspan="7"><strong>Total Paid</strong></td>
+          <td><strong>₹{{totalPaid}}/-</strong></td>
+        </tr>
+      </table>
+      <p class="footer">All rights reserved by JustFix Pvt Ltd</p>
+    </div>
+  </body>
+</html>

@@ -34,8 +34,12 @@ const signin = {
       otherwise: Joi.forbidden(),
     }),
     garage_name: Joi.when("role", {
-      is: ROLE.GARAGE, // When role is "garage"
-      then: Joi.string().required(),
+      is: Joi.valid(ROLE.GARAGE).required(), // Ensure role is GARAGE
+      then: Joi.alternatives().conditional(Joi.ref("is_social"), {
+        is: true,
+        then: Joi.string().required(),
+        otherwise: Joi.forbidden(),
+      }),
       otherwise: Joi.forbidden(),
     }),
     profile_image: Joi.string().optional(),

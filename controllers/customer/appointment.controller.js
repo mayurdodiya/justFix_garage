@@ -34,7 +34,7 @@ module.exports = {
       }
 
       const { skip, limit } = await commonJs.pagination(page, size);
-      const data = await GarageModel.find(queryObj).select("-__v -is_delete -locationCoordinates -is_active ").limit(limit).skip(skip);
+      const data = await GarageModel.find(queryObj).select("_id user_id garage_name images certificate specialities avg_ratings created_at locationCoordinates").limit(limit).skip(skip);
       const response = await commonJs.paginData(data.length, data, page, limit);
 
       return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Garage data"), data: response });
@@ -57,7 +57,7 @@ module.exports = {
           select: "service_name",
         },
       };
-      const data = await GarageModel.findById(id).select("garage_name").populate(populate);
+      const data = await GarageModel.findById(id).select("garage_name locationCoordinates").populate(populate);
       return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Garage profile"), data });
     } catch (error) {
       console.log("🚀 ~ getGarageById: ~ error:", error);
@@ -360,6 +360,7 @@ module.exports = {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.REQUIRED("appointmentId") });
       }
 
+
       const populate = [
         {
           path: "garage_id",
@@ -397,26 +398,32 @@ module.exports = {
         },
       ];
       const appointments = await AppointmentsModel.findOne({ _id: appointmentId }).populate(populate);
+      if (!appointments) {
+        return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_FOUND("This appointment") });
+      }
+      console.log(appointments, "------------------- appointments");
 
       const responseModify = await modifyAppointmentForCustomerInvoice(appointments);
 
       let serviceData = [];
-      responseModify.appointment_services.map((item) => {
+      await responseModify.appointment_services.map((item) => {
         const obj = {
           name: item.service_name,
           user_approval: item.user_approval,
-          charge: item.net_amount,
+          service_amount: item.service_amount,
           discount: item.discount,
-          status: item.payment_status,
-          transactionId: item.transaction_id,
-          total:item.net_amount,
+          status: item.payment_status == PAYMENT_STATUS.CAPTURE ? "paid" : item.payment_status,
+          transactionId: item.transaction_id ? item.transaction_id : "-",
+          total: item.net_amount,
         };
         serviceData.push(obj);
       });
+      console.log(responseModify, "------------------- responseModify");
 
       // Sample Data
       const invoiceData = {
         appointmentId: responseModify.appointment_data._id,
+        appointment_status: responseModify.appointment_data.status == APPOINTMENT_STATUS.IN_PROGRESS ? 'In Progress' : responseModify.appointment_data.status,
         invoiceDate: moment(new Date()).format("D/MM/YYYY"),
         user: {
           name: responseModify.appointment_data.user_data.full_name,
@@ -428,13 +435,19 @@ module.exports = {
           phone: responseModify.appointment_data.garage_data.phone_no,
           email: responseModify.appointment_data.garage_data.email,
         },
+        vehicle: {
+          model_name: `${responseModify.appointment_data.vehicle_data.company} ${responseModify.appointment_data.vehicle_data.model_name}`,
+          license_plate: responseModify.appointment_data.vehicle_data.license_plate,
+          fuel_type: responseModify.appointment_data.vehicle_data.fuel_type,
+        },
         services: serviceData,
-        totalPaid: responseModify.appointment_services.total_bill ? responseModify.appointment_services.total_bill : "-",
+        totalPaid: responseModify.total_bill ? responseModify.total_bill : 0,
       };
-
+      console.log(invoiceData, "------------------- invoiceData");
+      // return
       // Generate Invoice
-      await invoicePdf.generateInvoice(invoiceData);
-      const pdfPath = await path.join(__dirname, "..", "..", "invoice.pdf");
+      await invoicePdf.generateCustomerAppointmentInvoice(invoiceData);
+      const pdfPath = await path.join(__dirname, "..", "..", "appointment.invoice.pdf");
       return res.download(pdfPath, "invoice.pdf", (err) => {
         if (err) {
           console.error("Error sending file:", err);
@@ -449,5 +462,3 @@ module.exports = {
     }
   },
 };
-
-console.log(path.join(__dirname, "..", "..", "invoice.pdf"));

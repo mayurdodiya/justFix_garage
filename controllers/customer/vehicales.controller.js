@@ -8,7 +8,7 @@ module.exports = {
   getAllVehicle: async (req, res) => {
     try {
       const { page, size, s } = req.query;
-      const userId = req.req._id;
+      const userId = req._id;
       const queryObj = {
         is_delete: false,
         user_id: userId,

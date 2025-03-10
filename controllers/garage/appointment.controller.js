@@ -73,6 +73,10 @@ module.exports = {
       await AppointmentServicesModel.create({
         appointment_id: appointmentId,
         garage_service_id: garage_service_id,
+        garage_services: {
+          garage_service_id: garage_service_id,
+          garage_service_price: garageServicePrice.price,
+        },
         service_recommended_garage_id: garageId,
         user_approval: USER_APPROVAL.PENDING,
         service_amount: garageServicePrice.price,

@@ -52,18 +52,12 @@ module.exports = {
     };
   },
   modifyAppointmentForCustomerInvoice: async (response) => {
-    const servicesNameCombine = [];
-    response.appointment_services.map((item) => {
-      item.garage_services.map((item) => {
-        servicesNameCombine.push(`${item?.garage_service_id?.service_id?.service_name} at ₹${item?.garage_service_price}`);
-      });
-    });
-    const servicesNameString = servicesNameCombine.join(", "); // "xyz, abc"
-
     const totalBill = response.appointment_services.reduce((sum, item) => {
-      // if (item?.payment?.payment_status == PAYMENT_STATUS.CAPTURE) { //
-        return sum + (item?.net_amount || 0);
-      // } //
+      let sumAmount = item?.net_amount
+      if (item?.payment?.payment_status !== PAYMENT_STATUS.CAPTURE) {
+        sumAmount = 0
+      } 
+      return sum + (sumAmount || 0);
     }, 0);
     return {
       appointment_data: {
@@ -100,7 +94,11 @@ module.exports = {
           net_amount: item?.net_amount,
           payment_status: item?.payment?.payment_status,
           transaction_id: item?.payment?.transaction_id,
-          service_name: servicesNameString,
+          service_name: item.garage_services.map((item) => {
+            let stringArr = [];
+            stringArr.push(`${item?.garage_service_id?.service_id?.service_name} at ₹${item?.garage_service_price}`);
+            return stringArr.join(", ");
+          }),
         };
       }),
       total_bill: totalBill,

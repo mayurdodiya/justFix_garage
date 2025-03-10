@@ -10,7 +10,7 @@ const appointmentServicesSchema = new mongoose.Schema(
           ref: "garage_services",
           required: true,
         },
-        garage_service_price: {
+        garage_service_price: { // each services price
           type: Number,
           required: true,
         },
@@ -27,7 +27,7 @@ const appointmentServicesSchema = new mongoose.Schema(
       default: USER_APPROVAL.PENDING,
       required: true,
     },
-    service_amount: {
+    service_amount: { // total of all services
       type: Number,
       required: true,
     },
