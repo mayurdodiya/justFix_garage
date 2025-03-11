@@ -9,3 +9,5 @@ module.exports.appointmentValidation = require("./appointment.validation"); // a
 module.exports.dashboardValidation = require("./dashboard.validation"); // dashboard validation.
 module.exports.accountingValidation = require("./accounting.validation"); // accounting validation.
 module.exports.ratingsValidation = require("./ratings.validation"); // ratings validation.
+module.exports.adminValidation = require("./admin.validation"); // admin validation.
+

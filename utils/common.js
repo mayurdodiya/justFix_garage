@@ -40,6 +40,7 @@ module.exports = {
   },
 
   comparePassword: async ({ password, hashPwd }) => {
+    console.log(password, hashPwd, "-------- compare");
     if (!password || !hashPwd) {
       return false;
     }

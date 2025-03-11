@@ -63,7 +63,7 @@ const verifyOtp = {
 
 const signup = {
   body: Joi.object().keys({
-    role: Joi.string().valid(ROLE.ADMIN, ROLE.GARAGE, ROLE.USER).required(),
+    role: Joi.string().valid(ROLE.GARAGE, ROLE.USER).required(),
     garage_name: Joi.when("role", {
       is: ROLE.GARAGE, // When role is "garage"
       then: Joi.string().required(),

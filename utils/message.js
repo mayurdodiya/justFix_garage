@@ -27,7 +27,10 @@ module.exports = {
   INSUFFICIENT_BALANCE: "Insufficient balance to withdraw!",
   REQUEST_ALREADY_EXISTS: "You cannot submit a new request until your previous request is completed!",
   GARAGE_PENDING_REQUEST: "Your appointment request is still pending with the garage and has not been accepted yet!",
-  GARAGE_NO_SERVICES_TAKEN: "You have not availed any services from this garage, so you cannot leave a review or feedback!"
+  GARAGE_NO_SERVICES_TAKEN: "You have not availed any services from this garage, so you cannot leave a review or feedback!",
+  APPOINTMENT_COMPLETION_RESTRICTED: "The appointment status cannot be marked as completed by the garage. Only the customer or an admin can perform this action!",
+  APPOINTMENT_ALREADY_COMPLETED: "This appointment is already completed, so you cannot suggest new services on it!",
+  ALREADY_PAID: "The payment for this service has already been completed. No further transactions are required!",
 };
 
 // module.exports = { message };

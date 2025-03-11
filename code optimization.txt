@@ -3,8 +3,9 @@ common find,fondone query setup
 set api common logic in common file
 remove logs and set logger
 some validation same to same
-countDocuments optimize
+countDocuments optimize ( take .length )
 remove unused code
 searching in all list apis
 remove frmo all validation error ==> "\"appointment_id\" is required,
 made each role different index file ==> v1 file
+all listing api ma sort as created_at latest data upper side avvo joyye

@@ -1,4 +1,4 @@
-const { GarageModel, AppointmentsModel, AppointmentServicesModel, GarageServicesModel, VehiclesModel, PaymentsModel } = require("../../models/index.js");
+const { GarageModel, AppointmentsModel, AppointmentServicesModel, GarageServicesModel, VehiclesModel, PaymentsModel, UserModel, AdminWalletModel } = require("../../models/index.js");
 const apiResponse = require("../../utils/api.response.js");
 const MESSAGE = require("../../utils/message.js");
 const commonJs = require("../../utils/common.js");
@@ -145,17 +145,17 @@ module.exports = {
 
       const appointment_service_id = req.params.id;
 
-      const isAppointmentServiceExist = await AppointmentServicesModel.findOne({ _id: appointment_service_id, is_delete: false });
+      const isAppointmentServiceExist = await AppointmentServicesModel.findOne({ _id: appointment_service_id, is_delete: false }).select("_id appointment_id payment net_amount");
       if (!isAppointmentServiceExist) {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_FOUND("This Appointment service") });
       }
 
-      const appointment = await AppointmentsModel.findOne({ _id: isAppointmentServiceExist.appointment_id, user_id: userId, is_delete: false });
-      if (!appointment) {
-        return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_FOUND("This Appointment") });
+      if (isAppointmentServiceExist.payment.payment_status == PAYMENT_STATUS.CAPTURE) {
+        return apiResponse.BAD_REQUEST({ res, message: MESSAGE.ALREADY_PAID });
       }
 
-      if (appointment.status == APPOINTMENT_STATUS.PENDING) {
+      const appointment = await AppointmentsModel.findOne({ _id: isAppointmentServiceExist.appointment_id, user_id: userId, is_delete: false, status: { $ne: APPOINTMENT_STATUS.PENDING } });
+      if (!appointment) {
         return apiResponse.BAD_REQUEST({ res, message: MESSAGE.GARAGE_PENDING_REQUEST });
       }
 
@@ -225,6 +225,27 @@ module.exports = {
               $set: { "payment.payment_status": PAYMENT_STATUS.CAPTURE, "payment.transaction_id": paymentObj?.id, "payment.message": "payment successfully capture" },
             }
           );
+          // manage garage wallet
+          await GarageModel.findOneAndUpdate(
+            { _id: payment.garage_id },
+            {
+              $inc: {
+                wallet_amount: payment?.net_withdrawable_amount,
+              },
+            }
+          );
+          // manage admin wallet
+          const finfAdminUserId = await UserModel.findOne({ email: process.env.ADMIN_EMAIL });
+          await AdminWalletModel.findOneAndUpdate(
+            { user_id: finfAdminUserId?._id },
+            {
+              $inc: {
+                balance: payment?.amount,
+                admin_earned_amount: payment?.admin_fees,
+                garage_user_earned_amount: payment?.net_withdrawable_amount,
+              },
+            }
+          );
           console.log(payment, "---------------------------- : Payment Successful! ✅");
           break;
 
@@ -237,6 +258,8 @@ module.exports = {
               $set: { "payment.payment_status": PAYMENT_STATUS.FAILURE, "payment.message": paymentObj?.last_payment_error?.message },
             }
           );
+
+          console.log(payment, "---------------------------- : Payment Failed! ❌");
           break;
 
         default:
@@ -360,7 +383,6 @@ module.exports = {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.REQUIRED("appointmentId") });
       }
 
-
       const populate = [
         {
           path: "garage_id",
@@ -423,7 +445,7 @@ module.exports = {
       // Sample Data
       const invoiceData = {
         appointmentId: responseModify.appointment_data._id,
-        appointment_status: responseModify.appointment_data.status == APPOINTMENT_STATUS.IN_PROGRESS ? 'In Progress' : responseModify.appointment_data.status,
+        appointment_status: responseModify.appointment_data.status == APPOINTMENT_STATUS.IN_PROGRESS ? "In Progress" : responseModify.appointment_data.status,
         invoiceDate: moment(new Date()).format("D/MM/YYYY"),
         user: {
           name: responseModify.appointment_data.user_data.full_name,

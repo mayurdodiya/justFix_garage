@@ -8,18 +8,15 @@ module.exports = {
   getAllVehicle: async (req, res) => {
     try {
       const { page, size, s } = req.query;
-      const userId = req._id;
+      const userId = req.user._id;
       const queryObj = {
         is_delete: false,
         user_id: userId,
       };
 
       const { skip, limit } = await commonJs.pagination(page, size);
-
-      const count = await VehiclesModel.countDocuments(queryObj); // Count documents
-      const data = await VehiclesModel.find(queryObj).limit(limit).skip(skip);
-
-      const response = await commonJs.paginData(count, data, page, limit);
+      const data = await VehiclesModel.find(queryObj).select("_id  user_id vehicle_type company model_name").limit(limit).skip(skip);
+      const response = await commonJs.paginData(data.length, data, page, limit);
 
       return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Vehicle data"), data: response });
     } catch (error) {
@@ -67,7 +64,7 @@ module.exports = {
     try {
       const vehicleId = req.params.id;
 
-      const vehicle = await VehiclesModel.findById(vehicleId);
+      const vehicle = await VehiclesModel.findById(vehicleId).select("-is_delete");
 
       if (!vehicle) {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_DATA("This vehicle") });
@@ -95,5 +92,4 @@ module.exports = {
       return apiResponse.CATCH_ERROR({ res, message: MESSAGE.SOMETHING_WENT_TO_WRONG });
     }
   },
-
 };

@@ -1,4 +1,4 @@
-const { UserModel, RoleModel } = require("../models");
+const { UserModel, RoleModel, AdminWalletModel } = require("../models");
 const { adminData } = require("./seedData");
 const bcrypt = require("bcryptjs");
 
@@ -32,6 +32,8 @@ module.exports = adminSeeder = async () => {
 
       if (!adminExist) {
         await UserModel.create(adminData); // If admin doesn't exists, create admin.
+        const adminWallet = await AdminWalletModel.findOne({ user_id: adminExist._id });
+        if (!adminWallet) await AdminWalletModel.create({ user_id: adminExist._id });
       }
     }
 

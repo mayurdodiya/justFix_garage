@@ -2,7 +2,7 @@ const { AppointmentsModel, AppointmentServicesModel, GarageServicesModel } = req
 const apiResponse = require("../../utils/api.response.js");
 const MESSAGE = require("../../utils/message.js");
 const commonJs = require("../../utils/common.js");
-const { USER_APPROVAL } = require("../../utils/constant.js");
+const { USER_APPROVAL, APPOINTMENT_STATUS } = require("../../utils/constant.js");
 
 module.exports = {
   // list of appointments
@@ -44,6 +44,10 @@ module.exports = {
     try {
       const appointmentId = req.params.id;
       const status = req.query.status;
+      if (status == APPOINTMENT_STATUS.COMPLETED) {
+        return apiResponse.BAD_REQUEST({ res, message: MESSAGE.APPOINTMENT_COMPLETION_RESTRICTED });
+      }
+
       const data = await AppointmentsModel.findOneAndUpdate({ _id: appointmentId }, { status: status }, { new: true });
       console.log(data, "----------------------");
 
@@ -65,8 +69,22 @@ module.exports = {
       const appointmentId = req.query.appointment_id;
       let { garage_service_id, message, discount } = req.body;
 
-      const garageServicePrice = await GarageServicesModel.findOne({ _id: garage_service_id, is_delete: false });
-      if (!garageServicePrice) {
+      const [isAppointmentExist, isgarageServiceExist] = await Promise.all([
+        AppointmentsModel.findOne({ _id: appointmentId, garage_id: garageId, is_delete: false }),
+        GarageServicesModel.findOne({ _id: garage_service_id, is_delete: false })
+      ]);
+
+      // const appointment = await AppointmentsModel.findOne({ _id: appointmentId, garage_id: garageId, is_delete: false });
+      if (!isAppointmentExist) {
+        return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_FOUND("Garage appointment") });
+      }
+
+      if (isAppointmentExist.status == APPOINTMENT_STATUS.COMPLETED) {
+        return apiResponse.BAD_REQUEST({ res, message: MESSAGE.APPOINTMENT_ALREADY_COMPLETED });
+      }
+
+      // const garageService = await GarageServicesModel.findOne({ _id: garage_service_id, is_delete: false });
+      if (!isgarageServiceExist) {
         return apiResponse.NOT_FOUND({ res, message: MESSAGE.NO_FOUND("Garage service") });
       }
 
@@ -75,11 +93,11 @@ module.exports = {
         garage_service_id: garage_service_id,
         garage_services: {
           garage_service_id: garage_service_id,
-          garage_service_price: garageServicePrice.price,
+          garage_service_price: isgarageServiceExist.price,
         },
         service_recommended_garage_id: garageId,
         user_approval: USER_APPROVAL.PENDING,
-        service_amount: garageServicePrice.price,
+        service_amount: isgarageServiceExist.price,
         discount: discount == null || discount == undefined || discount < 0 ? 0 : discount,
         message: message,
       });

@@ -1,7 +1,7 @@
 const commonJs = require("../../utils/common.js");
 const apiResponse = require("../../utils/api.response.js");
 const MESSAGE = require("../../utils/message.js");
-const { UserModel } = require("../../models/index.js");
+const { UserModel, AdminWalletModel } = require("../../models/index.js");
 
 module.exports = {
   // get profile
@@ -13,6 +13,9 @@ module.exports = {
       delete user.fcm_token;
       delete user.is_social;
       delete user.is_delete;
+
+      adminWallet = await AdminWalletModel.findOne({ user_id: user._id }).select('-_id -created_at -updated_at');
+      user.admin_wallet = adminWallet;
 
       return apiResponse.OK({ res, message: MESSAGE.GET_DATA("Profile data"), data: user });
     } catch (error) {
